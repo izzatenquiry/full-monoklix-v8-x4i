@@ -148,10 +148,6 @@ export const executeProxiedRequest = async (
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(`❌ [API Client] ${tokenIdentifier} failed for ${logContext}:`, errorMessage);
     addLogEntry({ model: logContext, prompt: `${tokenIdentifier} failed`, output: errorMessage, tokenCount: 0, status: 'Error', error: errorMessage });
-
-    if (tokenIdentifier === 'Personal Token') {
-      eventBus.dispatch('personalTokenFailed');
-    }
     
     throw error;
   }

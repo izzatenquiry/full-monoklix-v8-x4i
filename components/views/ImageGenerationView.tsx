@@ -125,7 +125,8 @@ const ImageGenerationView: React.FC<ImageGenerationViewProps> = ({ onCreateVideo
     const acceptedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     const filesToProcess = Array.from(files).slice(0, 5 - referenceImages.length);
     
-    const validFiles = filesToProcess.filter(file => {
+    // FIX: Explicitly type `file` as `File` to resolve TS error where it was inferred as `unknown`.
+    const validFiles = filesToProcess.filter((file: File) => {
       if (!acceptedTypes.includes(file.type)) {
         alert(`Unsupported file type: ${file.name}. Please upload PNG or JPG files.`);
         return false;

@@ -21,6 +21,20 @@ export const handleApiError = (error: unknown): string => {
     }
     
     const lowerCaseMessage = message.toLowerCase();
+
+    // A more specific check for definitive authentication failures to avoid false positives.
+    const isDefinitiveAuthFailure = 
+        lowerCaseMessage.includes('api key not valid') ||
+        lowerCaseMessage.includes('api key not found') ||
+        lowerCaseMessage.includes('invalid authentication credentials') || // For expired __SESSION tokens
+        lowerCaseMessage.includes('request had invalid authentication credentials') ||
+        lowerCaseMessage.includes('failed to verify the api key');
+
+    if (isDefinitiveAuthFailure) {
+        eventBus.dispatch('personalTokenFailed');
+        return "Your connection token is invalid or has expired. An automatic update has been triggered. If this fails, please claim a new token from the Key icon in the header.";
+    }
+    
     let errorCode: string | undefined;
 
     // --- Start Error Code Detection ---
@@ -52,7 +66,7 @@ export const handleApiError = (error: unknown): string => {
         }
 
         if (!errorCode) {
-            if (lowerCaseMessage.includes('permission denied') || lowerCaseMessage.includes('api key not valid')) {
+            if (lowerCaseMessage.includes('permission denied')) {
                 errorCode = '403';
             } else if (lowerCaseMessage.includes('bad request')) {
                 errorCode = '400';
@@ -65,23 +79,12 @@ export const handleApiError = (error: unknown): string => {
     }
     // --- End Error Code Detection ---
 
-    // A more specific check for definitive API key failures to avoid false positives.
-    const isDefinitiveApiKeyFailure = 
-        lowerCaseMessage.includes('api key not valid. please pass a valid api key') ||
-        lowerCaseMessage.includes('permission denied. failed to verify the api key') ||
-        lowerCaseMessage.includes('api key not found');
-    
-    if (isDefinitiveApiKeyFailure) {
-        eventBus.dispatch('personalTokenFailed');
-        return "Your connection token is invalid or has failed. Please claim a new token from the Key icon in the header.";
-    }
-    
     switch(errorCode) {
         case '400_SAFETY': return 'Request blocked by safety filters. Please try a different prompt or image.';
-        case '400': return 'Invalid request. This can be caused by an unsupported image format (please use PNG or JPG) or an issue with the prompt.';
-        case '403': // Generic permission error, but not a definitive key failure
+        case '400': return 'Invalid request. This can be caused by an unsupported image format (please use PNG or JPG) or an issue with the prompt. The AI considers this an "invalid argument".';
+        case '403': // Generic permission denied, but not a key failure
         case '401':
-             return "Permission denied. Your token may lack permissions for this specific model. Please try claiming a new token.";
+             return "Permission denied for this resource. Your token may lack permissions for this specific model, or there might be a temporary access issue. Please try again later or contact support.";
         case '429': return 'Server Penuh. Sila tunggu sebentar sebelum mencuba lagi.';
         case '500':
         case '503': return 'Google API is temporarily unavailable. Please try again in a few moments.';
