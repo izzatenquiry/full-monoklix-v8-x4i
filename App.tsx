@@ -167,9 +167,9 @@ const ServerSelectionModal: React.FC<{ onSelect: (serverUrl: string) => void, cu
                         <ServerIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">Pilih Pelayan Sambungan Anda</h2>
+                        <h2 className="text-xl font-bold text-neutral-800 dark:text-neutral-100">Pilih Server Anda</h2>
                         <p className="text-neutral-500 dark:text-neutral-400 mt-1 text-sm">
-                            Pilih pelayan proksi untuk sesi anda. Pelayan dengan pengguna yang lebih sedikit mungkin lebih pantas.
+                            Kami limitkan dulu hari ini sebab belum siap sepenuhnya. Sekarang masih share MONOklix Token. Dalam proses menyiapkan Token generator. Server dengan pengguna yang lebih sedikit mungkin lebih pantas. 
                         </p>
                     </div>
                 </div>
